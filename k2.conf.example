@@ -1,0 +1,6 @@
+# Example configuration for k2 profile
+api_key=sk-REPLACE_ME_WITH_YOUR_KEY
+claude_url=https://api.moonshot.cn/anthropic
+openai_url=https://api.moonshot.cn/v1
+model=kimi-k2
+fast_model=k2-mini
