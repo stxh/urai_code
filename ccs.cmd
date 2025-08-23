@@ -1,4 +1,4 @@
-@echo off
+@echo on
 setlocal enabledelayedexpansion
 
 rem ccs.cmd - AI service client selector (Windows CMD) using .conf
@@ -28,10 +28,22 @@ for /f "usebackq tokens=1* delims==" %%A in ("%CONFIG_FILE%") do (
       rem Normalize value: strip surrounding quotes and spaces
       set "v=!value!"
       if defined v (
-        if "!v:~0,1!"=="\"" set "v=!v:~1!"
-        if "!v:~-1!"=="\"" set "v=!v:~0,-1!"
-        if "!v:~0,1!"=="'" set "v=!v:~1!"
-        if "!v:~-1!"=="'" set "v=!v:~0,-1!"
+        rem Remove leading and trailing quotes if present
+        set "temp_v=!v!"
+        if "!temp_v:~0,1!"==^"^" (
+          set "temp_v=!temp_v:~1!"
+        )
+        if "!temp_v:~-1!"==^"^" (
+          set "temp_v=!temp_v:~0,-1!"
+        )
+        if "!temp_v:~0,1!"==^'^' (
+          set "temp_v=!temp_v:~1!"
+        )
+        if "!temp_v:~-1!"==^'^' (
+          set "temp_v=!temp_v:~0,-1!"
+        )
+        set "v=!temp_v!"
+        rem Remove leading and trailing spaces
         for /f "tokens=* delims= " %%Z in ("!v!") do set "v=%%Z"
         for /l %%# in (1,1,100) do if "!v:~-1!"==" " set "v=!v:~0,-1!"
       )
@@ -48,7 +60,7 @@ if defined ANTHROPIC_API_KEY (
   set "API_SHOW=!ANTHROPIC_API_KEY:~0,8!..."
   echo   API Key: !API_SHOW!
 ) else (
-  echo   API Key: 
+  echo   API Key: Not set
 )
 echo   Claude URL: !ANTHROPIC_BASE_URL!
 echo   Model: !ANTHROPIC_MODEL!
@@ -74,32 +86,31 @@ exit /b %errorlevel%
 
 :help
 echo ccs - AI service client selector with configuration files
-
+echo.
 echo Usage: ccs ^<config_name^> [options]
-
+echo.
 echo Configuration:
 echo   config_name    Name of the configuration file ^(without .conf extension^)
 echo                   Looks for %USERPROFILE%\.aiconf\^<config_name^>.conf
-
+echo.
 echo   No arguments   Show this help message
-
+echo.
 echo Configuration file format ^(%USERPROFILE%\.aiconf\^<name^>.conf^):
 echo   api_key=^<your_api_key^>
 echo   claude_url=^<claude_api_base_url^>
 echo   openai_url=^<openai_api_base_url^>
 echo   model=^<model_name^>
-
+echo.
 echo Environment variables ^(fallback^):
 echo   ANTHROPIC_AUTH_TOKEN  API key
-
 echo   ANTHROPIC_BASE_URL    Base URL
-
+echo.
 echo Examples:
 echo   ccs              Show this help message
 echo   ccs k2           Use k2.conf configuration
 echo   ccs myai         Use myai.conf configuration
 echo   ccs --help       Show this help message
-
+echo.
 echo Configuration files should be placed in %USERPROFILE%\.aiconf\
 exit /b 0
 
