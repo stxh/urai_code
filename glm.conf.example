@@ -1,0 +1,5 @@
+# ChatGLM configuration
+api_key=your_modelscope_key
+claude_url=https://api-inference.modelscope.cn
+openai_url=https://api-inference.modelscope.cn/v1/
+model=ZhipuAI/GLM-4.5

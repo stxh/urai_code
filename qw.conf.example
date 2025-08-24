@@ -1,0 +1,5 @@
+# Qwen configuration
+api_key=your_qwen_key
+claude_url=https://dashscope.aliyuncs.com/api/v2/apps/claude-code-proxy
+openai_url=https://dashscope.aliyuncs.com/api/v1
+model=qwen-max
