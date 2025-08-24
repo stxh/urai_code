@@ -3,7 +3,8 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(.ccs.cmd)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": [],
