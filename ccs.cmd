@@ -47,8 +47,8 @@ for /f "usebackq tokens=1* delims==" %%A in ("%CONFIG_FILE%") do (
         for /f "tokens=* delims= " %%Z in ("!v!") do set "v=%%Z"
         for /l %%# in (1,1,100) do if "!v:~-1!"==" " set "v=!v:~0,-1!"
       )
-      rem if /i "!key!"=="api_key" set "ANTHROPIC_API_KEY=!v!"
-      if /i "!key!"=="api_key" set "ANTHROPIC_AUTH_TOKEN=!v!"
+      if /i "!key!"=="api_key" set "ANTHROPIC_API_KEY=!v!"
+      rem if /i "!key!"=="api_key" set "ANTHROPIC_AUTH_TOKEN=!v!"
       if /i "!key!"=="claude_url" set "ANTHROPIC_BASE_URL=!v!"
       if /i "!key!"=="openai_url" rem present for compatibility, ignored here
       if /i "!key!"=="model" set "ANTHROPIC_MODEL=!v!"
@@ -59,6 +59,9 @@ for /f "usebackq tokens=1* delims==" %%A in ("%CONFIG_FILE%") do (
 echo Using configuration: %CONFIG_NAME%
 if defined ANTHROPIC_API_KEY (
   set "API_SHOW=!ANTHROPIC_API_KEY:~0,8!..."
+  echo   API Key: !API_SHOW!
+) else if defined ANTHROPIC_AUTH_TOKEN (
+  set "API_SHOW=!ANTHROPIC_AUTH_TOKEN:~0,8!..."
   echo   API Key: !API_SHOW!
 ) else (
   echo   API Key: Not set

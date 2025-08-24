@@ -67,12 +67,12 @@ echo   Model: !OPENAI_MODEL!
 rem Try qwen or qwen.exe
 where qwen >nul 2>nul
 if %errorlevel%==0 (
-  qwen %*
+  qwen
   exit /b %errorlevel%
 )
 where qwen.exe >nul 2>nul
 if %errorlevel%==0 (
-  qwen.exe %*
+  qwen.exe
   exit /b %errorlevel%
 )
 
