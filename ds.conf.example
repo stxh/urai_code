@@ -1,0 +1,5 @@
+# DeepSeek
+api_key=ur_deepseek_key
+claude_url=https://api.deepseek.com/anthropic
+openai_url=https://api.deepseek.com/v1
+model=deepseek-chat

@@ -1,4 +1,4 @@
-@echo on
+@echo off
 setlocal enabledelayedexpansion
 
 rem ccs.cmd - AI service client selector (Windows CMD) using .conf
@@ -47,7 +47,8 @@ for /f "usebackq tokens=1* delims==" %%A in ("%CONFIG_FILE%") do (
         for /f "tokens=* delims= " %%Z in ("!v!") do set "v=%%Z"
         for /l %%# in (1,1,100) do if "!v:~-1!"==" " set "v=!v:~0,-1!"
       )
-      if /i "!key!"=="api_key" set "ANTHROPIC_API_KEY=!v!"
+      rem if /i "!key!"=="api_key" set "ANTHROPIC_API_KEY=!v!"
+      if /i "!key!"=="api_key" set "ANTHROPIC_AUTH_TOKEN=!v!"
       if /i "!key!"=="claude_url" set "ANTHROPIC_BASE_URL=!v!"
       if /i "!key!"=="openai_url" rem present for compatibility, ignored here
       if /i "!key!"=="model" set "ANTHROPIC_MODEL=!v!"
@@ -68,12 +69,16 @@ echo   Model: !ANTHROPIC_MODEL!
 rem Try claude or claude.exe
 where claude >nul 2>nul
 if %errorlevel%==0 (
-  claude %*
+  shift
+  rem claude %*
+  claude
   exit /b %errorlevel%
 )
 where claude.exe >nul 2>nul
 if %errorlevel%==0 (
-  claude.exe %*
+  shift
+  rem claude.exe %*
+  claude.exe
   exit /b %errorlevel%
 )
 

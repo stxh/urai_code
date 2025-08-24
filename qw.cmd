@@ -28,15 +28,27 @@ for /f "usebackq tokens=1* delims==" %%A in ("%CONFIG_FILE%") do (
       rem Normalize value: strip surrounding quotes and spaces
       set "v=!value!"
       if defined v (
-        if "!v:~0,1!"=="\"" set "v=!v:~1!"
-        if "!v:~-1!"=="\"" set "v=!v:~0,-1!"
-        if "!v:~0,1!"=="'" set "v=!v:~1!"
-        if "!v:~-1!"=="'" set "v=!v:~0,-1!"
+        rem Remove leading and trailing quotes if present
+        set "temp_v=!v!"
+        if "!temp_v:~0,1!"==^"^" (
+          set "temp_v=!temp_v:~1!"
+        )
+        if "!temp_v:~-1!"==^"^" (
+          set "temp_v=!temp_v:~0,-1!"
+        )
+        if "!temp_v:~0,1!"==^'^' (
+          set "temp_v=!temp_v:~1!"
+        )
+        if "!temp_v:~-1!"==^'^' (
+          set "temp_v=!temp_v:~0,-1!"
+        )
+        set "v=!temp_v!"
+        rem Remove leading and trailing spaces
         for /f "tokens=* delims= " %%Z in ("!v!") do set "v=%%Z"
         for /l %%# in (1,1,100) do if "!v:~-1!"==" " set "v=!v:~0,-1!"
       )
       if /i "!key!"=="api_key" set "OPENAI_API_KEY=!v!"
-      if /i "!key!"=="base_url" set "OPENAI_BASE_URL=!v!"
+      if /i "!key!"=="openai_url" set "OPENAI_BASE_URL=!v!"
       if /i "!key!"=="model" set "OPENAI_MODEL=!v!"
     )
   )
@@ -47,7 +59,7 @@ if defined OPENAI_API_KEY (
   set "API_SHOW=!OPENAI_API_KEY:~0,8!..."
   echo   API Key: !API_SHOW!
 ) else (
-  echo   API Key: 
+  echo   API Key: Not set
 )
 echo   Base URL: !OPENAI_BASE_URL!
 echo   Model: !OPENAI_MODEL!
@@ -73,33 +85,31 @@ exit /b %errorlevel%
 
 :help
 echo qw - Qwen Code AI service selector with configuration files
-
+echo.
 echo Usage: qw ^<config_name^> [options]
-
+echo.
 echo Configuration:
 echo   config_name    Name of the configuration file ^(without .conf extension^)
 echo                   Looks for %USERPROFILE%\.aiconf\^<config_name^>.conf
-
+echo.
 echo   No arguments   Show this help message
-
+echo.
 echo Configuration file format ^(%USERPROFILE%\.aiconf\^<name^>.conf^):
 echo   api_key=^<your_api_key^>
 echo   base_url=^<api_base_url^>
 echo   model=^<model_name^>
-
+echo.
 echo Environment variables ^(fallback^):
 echo   OPENAI_KEY      API key
-
 echo   OPENAI_URL      Base URL
-
 echo   OPENAI_MODEL    Model name
-
+echo.
 echo Examples:
 echo   qw              Show this help message
 echo   qw k2           Use k2.conf configuration
 echo   qw myai         Use myai.conf configuration
 echo   qw --help       Show this help message
-
+echo.
 echo Configuration files should be placed in %USERPROFILE%\.aiconf\
 exit /b 0
 
