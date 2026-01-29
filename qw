@@ -5,35 +5,45 @@
 
 # Function to display help
 show_help() {
-    cat << EOF
-qw - Qwen Code AI service selector with configuration files
-
-Usage: qw [config_name] [options]
-
-Configuration:
-  config_name    Name of the configuration file (without .conf extension)
-                 Looks for ~/.aiconf/<config_name>.conf
-
-  No arguments   Show this help message
-
-Configuration file format (~/.aiconf/<name>.conf):
-  api_key=<your_api_key>
-  base_url=<api_base_url>
-  model=<model_name>
-
-Environment variables (fallback):
-  OPENAI_KEY      API key
-  OPENAI_URL      Base URL
-  OPENAI_MODEL    Model name
-
-Examples:
-  qw              Show this help message
-  qw k2           Use k2.conf configuration
-  qw myai         Use myai.conf configuration
-  qw --help       Show this help message
-
-Configuration files should be placed in ~/.aiconf/
-EOF
+    echo "qw - Qwen Code AI service selector with configuration files"
+    echo ""
+    echo "Usage: qw [config_name] [options]"
+    echo ""
+    echo "Configuration:"
+    echo "  config_name    Name of the configuration file (without .conf extension)"
+    echo "                 Looks for ~/.aiconf/<config_name>.conf"
+    echo ""
+    echo "  No arguments   Show this help message"
+    echo ""
+    echo "Configuration file format (~/.aiconf/<name>.conf):"
+    echo "  api_key=<your_api_key>"
+    echo "  base_url=<api_base_url>"
+    echo "  model=<model_name>"
+    echo ""
+    echo "Environment variables (fallback):"
+    echo "  OPENAI_KEY      API key"
+    echo "  OPENAI_URL      Base URL"
+    echo "  OPENAI_MODEL    Model name"
+    echo ""
+    echo "Examples:"
+    echo "  qw              Show this help message"
+    if [[ -d "$HOME/.aiconf" ]]; then
+        for conf_file in "$HOME/.aiconf"/*.conf; do
+            if [[ -e "$conf_file" ]]; then
+                basename_conf=$(basename "$conf_file" .conf)
+                # Extract the first line comment from the config file
+                first_line_comment=$(head -n 1 "$conf_file" | grep '^#' | sed 's/^# *//' | head -c 60)
+                if [[ -n "$first_line_comment" ]]; then
+                    printf "  qw %-12s %s\n" "$basename_conf" "$first_line_comment"
+                else
+                    printf "  qw %-12s Use %s.conf configuration\n" "$basename_conf" "$basename_conf"
+                fi
+            fi
+        done
+    fi
+    echo "  qw --help       Show this help message"
+    echo ""
+    echo "Configuration files should be placed in ~/.aiconf/"
 }
 
 # Function to show version
@@ -98,7 +108,7 @@ read_config() {
 
 # Parse command line arguments
 case "${1:-}" in
-    "-h"|"--help"|"")
+    ""|"-h"|"--help")
         show_help
         exit 0
         ;;

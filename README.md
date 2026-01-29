@@ -4,6 +4,8 @@ Lightweight cross-platform command-line tools for managing multiple AI service c
 
 ## Overview
 
+Claude Code and Qwen Code (a fork based on Gemini Code with support for Qwen3 Code) support custom AI models and third‑party providers. This project includes two scripts to make it easy to switch between third‑party models, including GLM‑4.5, Kimi K2, DeepSeek V3.1, and Qwen3‑Code.
+
 This project provides two main utilities:
 
 - **`ccs`** - For Anthropic claude code
@@ -13,7 +15,7 @@ Each tool allows you to manage multiple API configurations through simple config
 
 ## Features
 
-- **Cross-platform support**: macOS/Linux (bash), Windows CMD, and Windows PowerShell
+- **Cross-platform support**: macOS/Linux (bash) and Windows CMD
 - **Simple configuration**: Plain text `.conf` files with key=value pairs
 - **Secure**: API keys are masked when displayed
 - **Environment variable integration**: Sets standard environment variables for AI CLI tools
@@ -38,25 +40,12 @@ Each tool allows you to manage multiple API configurations through simple config
 1. Download or clone this repository
 2. Place the scripts in a directory on your PATH:
    - `ccs.cmd` and `qw.cmd` for Command Prompt
-   - `ccs.ps1` and `qw.ps1` for PowerShell
 
    Example for Command Prompt:
    ```cmd
    copy ccs.cmd %USERPROFILE%\bin\
    copy qw.cmd %USERPROFILE%\bin\
    ```
-
-### PowerShell Execution Policy
-
-If PowerShell blocks script execution, run one of the following:
-
-```powershell
-# System-wide (requires admin)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope LocalMachine
-
-# Per-user (recommended)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
 
 ## Configuration
 
@@ -65,33 +54,30 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 Create configuration files in:
 - **macOS/Linux**: `~/.aiconf/<name>.conf`
 - **Windows**: `%USERPROFILE%\.aiconf\<name>.conf`
+- Optional override: set `AICONF_DIR` to point to a custom directory
 
 ### Configuration File Format
 
 Each `.conf` file contains simple key=value pairs. Lines starting with `#` are comments.
 
-#### For `ccs` (Claude/Anthropic-compatible):
 ```ini
-api_key=sk-your-anthropic-api-key-here
-claude_url=https://api.anthropic.com
+api_key=sk-your-api-key-here
+claude_url=https://api.yourai.com/anthropic  # Used by ccs
+openai_url=https://api.yourai.com/v1         # Used by qw
 model=claude-3-sonnet-20240229
-# openai_url is ignored by ccs (present for compatibility)
 ```
 
-#### For `qw` (OpenAI-compatible, e.g., Qwen):
-```ini
-api_key=sk-your-openai-api-key-here
-base_url=https://dashscope.aliyuncs.com/compatible-mode/v1
-model=qwen2.5-coder-32b-instruct
-```
+**Important**: Each `.conf` file contains both `claude_url` and `openai_url` fields:
+- **`ccs`** uses `claude_url` for Claude/Anthropic-compatible endpoints
+- **`qw`** uses `openai_url` for OpenAI-compatible endpoints
 
 ### Example Configuration
 
-See `k2.conf` in this directory for a complete example:
+See the `.conf.example` files in this directory for complete examples:
 
 ```bash
-# Copy the example configuration
-cp k2.conf ~/.aiconf/k2.conf
+# Copy an example configuration
+cp k2.conf.example ~/.aiconf/k2.conf
 # Edit with your actual API keys and settings
 ```
 
@@ -107,10 +93,13 @@ qw <config_name> [options]
 # Windows CMD
 ccs.cmd <config_name> [options]
 qw.cmd <config_name> [options]
+```
 
-# Windows PowerShell
-.\ccs.ps1 <config_name> [options]
-.\qw.ps1 <config_name> [options]
+Additional commands:
+
+```
+ccs --config <config_name> [options]
+ccs --list
 ```
 
 ### Examples
@@ -133,6 +122,7 @@ The scripts set standard environment variables that are recognized by most AI CL
 
 #### For `ccs`:
 - `ANTHROPIC_API_KEY` - API key
+- `ANTHROPIC_AUTH_TOKEN` - API key (compat)
 - `ANTHROPIC_BASE_URL` - Base URL
 - `ANTHROPIC_MODEL` - Model name
 
@@ -167,10 +157,6 @@ Ensure these tools are installed and available in your PATH.
 - The "model" field is generic; ensure it matches a model supported by your target provider
 - Check your provider's documentation for supported models
 
-**PowerScript execution blocked**
-- See "PowerShell Execution Policy" section above
-- Run the appropriate Set-ExecutionPolicy command
-
 ### Debug Mode
 
 You can add `set -x` to the bash scripts or enable echo in CMD scripts to see what's happening:
@@ -186,11 +172,10 @@ set -x
 .
 ├── ccs                 # macOS/Linux bash script for Claude
 ├── ccs.cmd            # Windows CMD script for Claude
-├── ccs.ps1            # Windows PowerShell script for Claude
 ├── qw                 # macOS/Linux bash script for Qwen
 ├── qw.cmd             # Windows CMD script for Qwen
-├── qw.ps1             # Windows PowerShell script for Qwen
-├── k2.conf            # Example configuration file
+├── g.cmd              # Additional utility script
+├── *.conf.example     # Example configuration files
 └── README.md          # This file
 ```
 
@@ -203,7 +188,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/new-feature`
 3. Make your changes
-4. Test on all platforms (macOS/Linux, Windows CMD, Windows PowerShell)
+4. Test on all platforms (macOS/Linux, Windows CMD)
 5. Submit a pull request
 
 ### Testing
@@ -211,7 +196,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 Please test your changes on:
 - macOS/Linux with bash
 - Windows with Command Prompt
-- Windows with PowerShell
 
 ## License
 
@@ -224,6 +208,8 @@ This project is open source and available under the [MIT License](LICENSE).
 - API keys are masked when displayed (only first 8 characters shown)
 - Never commit actual API keys to version control
 
+Secrets are never printed in full. The tools only display masked prefixes.
+
 ## Support
 
 If you encounter any issues or have questions:
@@ -235,3 +221,7 @@ If you encounter any issues or have questions:
 ---
 
 **Note**: This is a configuration wrapper tool. You still need to install the actual AI CLI tools (Claude, Qwen, etc.) separately.
+
+## Changelog
+
+See `CHANGELOG.md` for detailed release notes.
