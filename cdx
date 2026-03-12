@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# cdx - Codex AI service client selector with configuration files
+# Similar to ccs but for Codex/OpenAI
+
+# Function to display help
+show_help() {
+    cat << EOF
+cdx - Codex AI service client selector with configuration files
+
+Usage: cdx [config_name] [options]
+
+Configuration:
+  config_name    Name of the configuration file (without .conf extension)
+                 Looks for ~/.aiconf/<config_name>.conf
+
+  No arguments   Show this help message
+
+Configuration file format (~/.aiconf/<name>.conf):
+  api_key=<your_api_key>
+  openai_url=<openai_api_base_url>
+  model=<model_name>
+
+Environment variables (fallback):
+  OPENAI_API_KEY    API key
+  OPENAI_API_BASE   Base URL
+
+Examples:
+  cdx              Show this help message
+  cdx openai       Use openai.conf configuration
+  cdx codex        Use codex.conf configuration
+  cdx --help       Show this help message
+
+Configuration files should be placed in ~/.aiconf/
+EOF
+}
+
+# Function to show version
+show_version() {
+    codex --version
+}
+
+# Function to read configuration file
+read_config() {
+    local config_name="$1"
+    local config_file="$HOME/.aiconf/${config_name}.conf"
+
+    if [[ ! -f "$config_file" ]]; then
+        echo "Error: Configuration file not found: $config_file" >&2
+        return 1
+    fi
+
+    # Read configuration file
+    local api_key=""
+    local openai_url=""
+    local model=""
+
+    while IFS='=' read -r key value; do
+        # Skip comments and empty lines
+        [[ $key =~ ^#.* ]] && continue
+        [[ -z $key ]] && continue
+
+        # Remove surrounding quotes and spaces
+        value=$(echo "$value" | sed 's/^[\"'\''' ]*//; s/[\"'\''' ]*$//')
+
+        case "$key" in
+            "api_key")
+                api_key="$value"
+                ;;
+            "openai_url")
+                openai_url="$value"
+                ;;
+            "model")
+                model="$value"
+                ;;
+        esac
+    done < "$config_file"
+
+    # Set environment variables
+    if [[ -n "$api_key" ]]; then
+        export OPENAI_API_KEY="$api_key"
+    fi
+
+    if [[ -n "$openai_url" ]]; then
+        export OPENAI_API_BASE="$openai_url"
+    fi
+
+    if [[ -n "$model" ]]; then
+        export OPENAI_MODEL="$model"
+    fi
+
+    echo "Using configuration: $config_name"
+    echo "  API Key: ${api_key:0:8}..."
+    echo "  OpenAI URL: $openai_url"
+    echo "  Model: $model"
+}
+
+# Parse command line arguments
+case "${1:-}" in
+    "-h"|"--help"|"")
+        show_help
+        exit 0
+        ;;
+    "-v"|"--version")
+        show_version
+        exit 0
+        ;;
+    *)
+        # Treat as configuration name
+        CONFIG_NAME="$1"
+        shift
+        ;;
+esac
+
+# Check if configuration name is provided
+if [[ -z "$CONFIG_NAME" ]]; then
+    show_help
+    exit 0
+fi
+
+# Create config directory if it doesn't exist
+mkdir -p "$HOME/.aiconf"
+
+# Read configuration
+read_config "$CONFIG_NAME"
+
+# Add bun to PATH if available
+if [ -d "$HOME/.bun/bin" ]; then
+    export PATH="$HOME/.bun/bin:$PATH"
+fi
+
+# Execute codex with remaining arguments
+if command -v codex >/dev/null 2>&1; then
+    codex "$@"
+elif command -v codex.exe >/dev/null 2>&1; then
+    codex.exe "$@"
+else
+    echo "Error: codex executable not found in PATH" >&2
+    exit 1
+fi
