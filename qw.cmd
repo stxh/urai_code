@@ -166,7 +166,8 @@ rem ==== pass_to_qwen function (optimized) ====
 :pass_to_qwen
 set "qwen_exe=%~1"
 shift
-%qwen_exe%
+rem This creates a RuntimeModelSnapshot with ID: $runtime|openai|my-custom-model
+%qwen_exe% --auth-type openai --model !OPENAI_MODEL! --openaiApiKey !OPENAI_API_KEY! --openaiBaseUrl !OPENAI_BASE_URL!
 goto :eof
 
 rem ==== find_and_run function ====
